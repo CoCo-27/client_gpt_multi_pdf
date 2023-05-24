@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 
 export default function TypeWriter(props) {
   const [displayedContent, setDisplayedContent] = useState('');
+  const [combinedContent, setCombinedContent] = useState('');
   const [index, setIndex] = useState(0);
+  const [isHidden, setIsHidden] = useState(true); // State to control visibilit
   const dataFetchedRef = useRef(false);
 
   let old_index = -1;
@@ -23,6 +25,16 @@ export default function TypeWriter(props) {
   }, []);
 
   useEffect(() => {
+    let tempCombinedContent = '';
+    props.sourceDocuments.forEach(document => {
+      tempCombinedContent = tempCombinedContent + '<br />' + document.metadata.source + '<br />' + document.pageContent + '<br />';
+    });
+
+    setCombinedContent(tempCombinedContent);
+    props.box_ref.current.scrollTop = props.box_ref.current.scrollHeight;
+  }, [props.sourceDocuments]);
+
+  useEffect(() => {
     if (old_index == index) return;
     old_index = index;
 
@@ -33,5 +45,20 @@ export default function TypeWriter(props) {
     props.box_ref.current.scrollTop = props.box_ref.current.scrollHeight;
   }, [index]);
 
-  return <p>{displayedContent}</p>;
+  const handleButtonClick = () => {
+    setIsHidden(!isHidden);
+  };
+
+  return (<div>
+              <p>{displayedContent}</p>
+         </div>);
 }
+
+// return (<div>
+//   <p>{displayedContent}</p>
+//   <button onClick={handleButtonClick}>Toggle Content ⬇️</button>
+// <p
+// dangerouslySetInnerHTML={{ __html: combinedContent }}
+// style={{ height: isHidden ? '0' : 'auto', overflow: 'hidden', transition: 'height 0.3s' }}
+// ></p>
+// </div>);

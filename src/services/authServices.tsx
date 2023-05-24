@@ -29,6 +29,7 @@ const resetPassword = (data) => {
   return axios.post(backend_api + 'user/resetPassword', data);
 };
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   authRegister,
   authLogin,

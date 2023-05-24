@@ -22,9 +22,9 @@ const embedding = (fileName, email) => {
   });
 };
 
-const requestMessage = (value) => {
+const requestMessage = (value, history) => {
   return axios.post(backend_api + 'upload/requestMessage', {
-    value: value,
+    question: value, history: history,
   });
 };
 

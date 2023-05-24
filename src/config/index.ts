@@ -1,2 +1,2 @@
-const backend_api = 'http://13.232.6.185/api/';
+const backend_api = 'http://localhost:9000/';
 export default backend_api;

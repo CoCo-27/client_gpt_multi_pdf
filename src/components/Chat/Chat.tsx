@@ -3,14 +3,35 @@ import { notification } from 'antd';
 import ChatMessage from '../ChatMessage/ChatMessage';
 import uploadServices from 'src/services/uploadServices';
 import { isEmpty } from 'src/utils/isEmpty';
+import { Message } from 'src/types/chatType';
 
 const Chat = ({ setLoading }) => {
   const inputRef = useRef();
   const [formValue, setFormValue] = useState('');
   const [array, setArray] = useState([]);
 
-  const req_qa_box = useRef(null);
 
+
+
+  const [messageState, setMessageState] = useState<{
+    messages: Message[];
+    pending?: string;
+    history: [string, string][];
+    pendingSourceDocs?: Document[];
+  }>({
+    messages: [
+      {
+        message: 'Hi, what would you like to learn about this legal case?',
+        type: 'apiMessage',
+      },
+    ],
+    history: [],
+  });
+
+  const { messages, history } = messageState;
+
+
+  const req_qa_box = useRef(null);
   useEffect(() => {
     req_qa_box.current.scrollTop = req_qa_box.current.scrollHeight;
   }, []);
@@ -24,17 +45,31 @@ const Chat = ({ setLoading }) => {
   const handleMessage = async () => {
     setFormValue('');
     const save = array.slice();
-    save.push({ message: formValue, flag: false });
+    save.push({ message: formValue, flag: false, sourceDocs: [] });
     save.push({ message: '...', flag: true });
     setArray(save);
     uploadServices
-      .requestMessage(formValue)
+      .requestMessage(formValue, history)
       .then((res) => {
         console.log('response Message = ', res);
         const update = save.slice();
         update[update.length - 1].message = res.data.text;
         update[update.length - 1].flag = true;
+        update[update.length - 1].sourceDocs = res.data.sourceDocuments;
         setArray(update);
+        setMessageState((state) => ({
+          ...state,
+          messages: [
+            ...state.messages,
+            {
+              type: 'apiMessage',
+              message: res.data.text,
+              sourceDocs: res.data.sourceDocuments,
+            },
+          ],
+          history: [...state.history, [formValue, res.data.text]],
+        }));
+        console.log('history = ', history);
       })
       .catch((err) => {
         console.log('MEssage Error = ', err);
@@ -44,6 +79,7 @@ const Chat = ({ setLoading }) => {
           duration: 2,
         });
       });
+
   };
 
   return (
@@ -61,6 +97,7 @@ const Chat = ({ setLoading }) => {
                     key={index}
                     box_ref={req_qa_box}
                     message={item.message}
+                    sourceDocuments={item.sourceDocs || []}
                     status={item.flag}
                   />
                 );
