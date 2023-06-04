@@ -16,7 +16,8 @@ const ChatMessage = (props) => {
     let tempCombinedContent = '';
     if (props.status) {
       props.sourceDocuments.forEach(document => {
-        tempCombinedContent = tempCombinedContent + '<br />' + document.metadata.source + '<br />' + document.pageContent + '<br />';
+        const pageContentWithBreaks = document.pageContent.replace(/\n/g, '<br />');
+        tempCombinedContent = tempCombinedContent + '<br />' + document.metadata.source + '<br />' + pageContentWithBreaks + '<br />';
       });
     };
 
